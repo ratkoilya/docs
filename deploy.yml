@@ -1,0 +1,23 @@
+name: Deploy softphone to Belarus vm
+on: workflow_dispatch
+
+jobs:
+  deploy_by:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    steps:
+      - name: deploy by
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          GCR_SA: "${{ secrets.GCR_SA }}"
+        with:
+          host: "${{ secrets.BY_SSH_HOST }}"
+          port: "${{ secrets.BY_SSH_PORT }}"
+          username: ${{ secrets.BY_SSH_USER }}
+          key: ${{ secrets.BY_SSH_KEY }}
+          envs: GCR_SA
+          script_stop: true
+          script: |
+            gcloud auth activate-service-account $GCR_SA --key-file=gcr_sa_key.json
+            gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io/tomoru-2bb77
+            docker compose down --rmi all && docker compose pull && docker compose up -d
