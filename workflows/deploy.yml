@@ -4,7 +4,7 @@ on: workflow_dispatch
 jobs:
   deploy_by:
     runs-on: ubuntu-latest
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'main'
     steps:
       - name: deploy by
         uses: appleboy/ssh-action@v1.0.0
